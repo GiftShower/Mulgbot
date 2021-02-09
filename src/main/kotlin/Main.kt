@@ -67,6 +67,16 @@ suspend fun main(args: Array<String>) {
                     }
                 }
             }
+            //서버 readme
+            command("readmedotmd") {
+                if(this.authorId.equals("364758752051855360")){
+                    reply{
+                        title = "멀티그라운드에 오신 것을 환영합니다!"
+                        description = "법전을 반드시 읽어 주시길 바랍니다.\n아래 역할을 눌러 노래봇 자유 컨트롤 권한을 획득하실 수 있습니다." +
+                                "\n이 공지는 테스트용으로 제작되었습니다."
+                    }
+                }
+            }
 
         }
         messageCreated {
