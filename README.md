@@ -1,5 +1,9 @@
-MultiGround bot - Made for GiftShower_'s Private Server.
-Discord bot created with Diskord-Starter and Diskord.
+MultiGround Discord Bot
+=============
+What is this?
+-------------
+This is a discord bot made with Diskord.
+Creating this for practicing kotlin and to use in my gaming discord server.
+Not created to be used public.
 
-서버에 사용하려고 만든 디스코드 봇입니다.
-
+*this repository can be switched to private at any time
