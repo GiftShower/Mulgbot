@@ -34,7 +34,7 @@ suspend fun main() {
             command("test") {
                 reply {
                     title = "test"
-                    description = "성공"
+                    description = "테스트 성공"
                 }
             }
             command("gifemoji"){
