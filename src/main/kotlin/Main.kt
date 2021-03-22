@@ -49,17 +49,19 @@ suspend fun main() {
                         break
                     }
                 }
-                this.delete()
-                val emjnam = emjlist[wantval].toString().substringAfter("name=").substringBefore(",")
-                val emjid = emjlist[wantval].toString().substringAfter("id=").substringBefore(",")
                 val emjanim = emjlist[wantval].toString().substringAfter("isAnimated=").substringBefore(")").toBoolean()
-                if(emjanim && wantval != 28){
-                    reply("<a:$emjnam:$emjid>")
+                if(wantval != 28 && emjanim){
+                    val emjnam = emjlist[wantval].toString().substringAfter("name=").substringBefore(",")
+                    val emjid = emjlist[wantval].toString().substringAfter("id=").substringBefore(",")
+                    this.delete()
+                    reply("${this.author.toString().substringAfter("username=").substringBefore(", discriminator")}: <a: $emjnam:$emjid>")
+                }
+                else if (!emjanim){
+                    reply("gif가 아닌 이모티콘입니다!")
                 }
                 else{
-                    reply("Not Animated or emoji does not exist.")
+                    reply("에러가 발생했습니다.")
                 }
-
             }
             command("getuser"){
                 val dc = DiscordClient(BOT_TOKEN)
@@ -98,7 +100,8 @@ suspend fun main() {
             command("help") {
                 reply {
                     title = "멀그봇 명령어 목록"
-                    description = "-=help: 명령어 목록을 표시합니다.\n-=req: 건의채널에서 건의를 보냅니다.\n-=domain: 서버 주소를 보여줍니다.\n"
+                    description = "-=help: 명령어 목록을 표시합니다.\n-=req: 건의채널에서 건의를 보냅니다.\n-=domain: 서버 주소를 보여줍니다.\n" +
+                            "-=gifemoji <이모티콘 이름(: 없이)>: gif 이모티콘을 하나 전송합니다."
                 }
             }
             //서버 readme
