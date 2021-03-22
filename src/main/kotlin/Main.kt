@@ -41,7 +41,7 @@ suspend fun main() {
                 val emjlist: List<Emoji> = gc.getEmoji()
                 val want = words.drop(1).joinToString(" ")
                 var enamt: String
-                var wantval: Int = emjlist.size
+                var wantval: Int = -1
                 for(i in 0 until (emjlist.size - 1)){
                     enamt = emjlist[i].toString().substringAfter("name=").substringBefore(",")
                     if (enamt == want){
@@ -50,7 +50,7 @@ suspend fun main() {
                     }
                 }
                 val emjanim = emjlist[wantval].toString().substringAfter("isAnimated=").substringBefore(")").toBoolean()
-                if(wantval != 28 && emjanim){
+                if(wantval != -1 && emjanim){
                     val emjnam = emjlist[wantval].toString().substringAfter("name=").substringBefore(",")
                     val emjid = emjlist[wantval].toString().substringAfter("id=").substringBefore(",")
                     this.delete()
