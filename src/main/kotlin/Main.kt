@@ -53,7 +53,10 @@ suspend fun main() {
                 val emjnam = emjlist[wantval].toString().substringAfter("name=").substringBefore(",")
                 val emjid = emjlist[wantval].toString().substringAfter("id=").substringBefore(",")
                 val emjanim = emjlist[wantval].toString().substringAfter("isAnimated=").substringBefore(")").toBoolean()
-                if(emjanim && wantval != 28){
+                if(want == ""){
+                    reply("Nothing was given.")
+                }
+                else if(emjanim && wantval != 28){
                     reply("<a:$emjnam:$emjid>")
                 }
                 else{
