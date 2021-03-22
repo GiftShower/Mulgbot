@@ -1,6 +1,11 @@
 package com.example
+import com.jessecorbett.diskord.api.DiscordUserType
+import com.jessecorbett.diskord.api.model.Emoji
 import com.jessecorbett.diskord.api.model.GuildMember
+import com.jessecorbett.diskord.api.model.Message
 import com.jessecorbett.diskord.api.model.Role
+import com.jessecorbett.diskord.api.rest.MessageEdit
+import com.jessecorbett.diskord.api.rest.client.ChannelClient
 import com.jessecorbett.diskord.api.rest.client.DiscordClient
 import com.jessecorbett.diskord.api.rest.client.GuildClient
 import com.jessecorbett.diskord.dsl.bot
@@ -9,6 +14,7 @@ import com.jessecorbett.diskord.dsl.commands
 import com.jessecorbett.diskord.util.authorId
 import com.jessecorbett.diskord.util.words
 import com.jessecorbett.diskord.util.DiskordInternals
+import com.jessecorbett.diskord.util.sendMessage
 
 private val BOT_TOKEN = try {
     ClassLoader.getSystemResource("bot-token.txt").readText().trim()
@@ -30,6 +36,30 @@ suspend fun main() {
                     title = "test"
                     description = "성공"
                 }
+            }
+            command("gifemoji"){
+                val emjlist: List<Emoji> = gc.getEmoji()
+                val want = words.drop(1).joinToString(" ")
+                var enamt: String
+                var wantval: Int = emjlist.size
+                for(i in 0 until (emjlist.size - 1)){
+                    enamt = emjlist[i].toString().substringAfter("name=").substringBefore(",")
+                    if (enamt == want){
+                        i.also { wantval = it }
+                        break
+                    }
+                }
+                this.delete()
+                val emjnam = emjlist[wantval].toString().substringAfter("name=").substringBefore(",")
+                val emjid = emjlist[wantval].toString().substringAfter("id=").substringBefore(",")
+                val emjanim = emjlist[wantval].toString().substringAfter("isAnimated=").substringBefore(")").toBoolean()
+                if(emjanim && wantval != 28){
+                    reply("<a:$emjnam:$emjid>")
+                }
+                else{
+                    reply("Not Animated or emoji does not exist.")
+                }
+
             }
             command("getuser"){
                 val dc = DiscordClient(BOT_TOKEN)
