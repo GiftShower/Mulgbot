@@ -1,20 +1,10 @@
 package com.example
 import com.jessecorbett.diskord.api.DiscordUserType
-import com.jessecorbett.diskord.api.model.Emoji
-import com.jessecorbett.diskord.api.model.GuildMember
-import com.jessecorbett.diskord.api.model.Message
-import com.jessecorbett.diskord.api.model.Role
+import com.jessecorbett.diskord.api.model.*
 import com.jessecorbett.diskord.api.rest.MessageEdit
-import com.jessecorbett.diskord.api.rest.client.ChannelClient
-import com.jessecorbett.diskord.api.rest.client.DiscordClient
-import com.jessecorbett.diskord.api.rest.client.GuildClient
-import com.jessecorbett.diskord.dsl.bot
-import com.jessecorbett.diskord.dsl.command
-import com.jessecorbett.diskord.dsl.commands
-import com.jessecorbett.diskord.util.authorId
-import com.jessecorbett.diskord.util.words
-import com.jessecorbett.diskord.util.DiskordInternals
-import com.jessecorbett.diskord.util.sendMessage
+import com.jessecorbett.diskord.api.rest.client.*
+import com.jessecorbett.diskord.dsl.*
+import com.jessecorbett.diskord.util.*
 
 private val BOT_TOKEN = try {
     ClassLoader.getSystemResource("bot-token.txt").readText().trim()
@@ -39,38 +29,32 @@ suspend fun main() {
             }
             command("gifemoji"){
                 val emjlist: List<Emoji> = gc.getEmoji()
+                val ejS = mutableListOf("-1")
                 val want = words.drop(1).joinToString(" ")
-                var enamt: String
-                var wantval: Int = -1
                 for(i in 0 until (emjlist.size - 1)){
-                    enamt = emjlist[i].toString().substringAfter("name=").substringBefore(",")
-                    if (enamt == want){
-                        i.also { wantval = it }
+                    if (doublecut(emjlist[i].toString(), "name=", ",") == want){
+                        ejS[0] = i.toString()
                         break
                     }
                 }
-                val emjanim = emjlist[wantval].toString().substringAfter("isAnimated=").substringBefore(")").toBoolean()
-                if(wantval != -1 && emjanim){
-                    val emjnam = emjlist[wantval].toString().substringAfter("name=").substringBefore(",")
-                    val emjid = emjlist[wantval].toString().substringAfter("id=").substringBefore(",")
-                    this.delete()
-                    reply("${this.author.toString().substringAfter("username=").substringBefore(", discriminator")}: <a: $emjnam:$emjid>")
-                }
-                else if (!emjanim){
-                    reply("gif가 아닌 이모티콘입니다!")
+                val wVal = ejS[0].toInt()
+                if(wVal != -1){
+                    ejS.add(doublecut(emjlist[wVal].toString(), "isAnimated=", ")"))
+                    ejS.add(doublecut(emjlist[wVal].toString(), "name=", ","))
+                    ejS.add(doublecut(emjlist[wVal].toString(), "id=", ","))
+                    if(ejS[1].toBoolean()){
+                        reply("${doublecut(this.author.toString(),
+                            "username=",
+                            ", discriminator")}:  <a:${ejS[2]}:${ejS[3]}>")
+                    }
+                    else {
+                        reply("GIF가 아닙니다!")
+                    }
                 }
                 else{
-                    reply("에러가 발생했습니다.")
+                    reply("없는 이모티콘입니다!")
                 }
-            }
-            command("getuser"){
-                val dc = DiscordClient(BOT_TOKEN)
-                val usr = this.author
-                val udat = dc.getUser(this.authorId)
-                reply{
-                    title = "User: $usr"
-                    description = "$udat"
-                }
+
             }
             command("isadmin"){
                 if(isRole(guildClient = gc, gc.getMember(authorId), "관리자")) reply("관리자네요")
@@ -104,26 +88,6 @@ suspend fun main() {
                             "-=gifemoji <이모티콘 이름(: 없이)>: gif 이모티콘을 하나 전송합니다."
                 }
             }
-            //서버 readme
-            command("readmedotmd") {
-                if (this.authorId.equals("364758752051855360")) {
-                    reply {
-                        title = "멀티그라운드에 오신 것을 환영합니다!"
-                        description = "법전을 반드시 읽어 주시길 바랍니다.\n아래 역할을 눌러 노래봇 자유 컨트롤 권한을 획득하실 수 있습니다." +
-                                "\n이 공지는 테스트용으로 제작되었습니다."
-                    }
-                }
-            }
-
-            command("closevote") {
-                val mestok = words.drop(1).joinToString(" ")
-                reply {
-                    title = "투표가 종료되었습니다!"
-                    description = "$mestok 토큰의 투표가 종료됨"
-                }
-                channel.deleteMessage(mestok)
-            }
-
         }
         messageCreated {
             //need to add channel id
@@ -136,13 +100,13 @@ suspend fun main() {
                 it.react("✋")
             }
             //request channel messege sent is not bot
-            if (it.channelId.equals("759308637385654323")) {
-                if (!it.authorId.equals("777135853608370217")) {
+            if (it.channelId == "759308637385654323") {
+                if (it.authorId != "777135853608370217") {
                     it.delete()
                 }
             }
             //screenshot channel message without embed delete
-            if (it.channelId.equals("759364798516953099")) {
+            if (it.channelId == "759364798516953099") {
                 if (it.attachments.isEmpty()) {
                     it.delete()
                 }
@@ -153,3 +117,5 @@ suspend fun main() {
 }
 suspend fun isRole(guildClient: GuildClient, user: GuildMember, roleName: String) = guildClient.getRoles()
     .any { role -> user.roleIds.contains(role.id) && role.name == roleName }
+
+fun doublecut(toCut: String, dlA: String, dlB: String) = toCut.substringAfter(dlA).substringBefore(dlB)
