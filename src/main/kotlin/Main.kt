@@ -13,6 +13,12 @@ private val BOT_TOKEN = try {
             " src/main/resources and paste the bot token into that file.", error)
 }
 
+private val HELP_LIST = try {
+    ClassLoader.getSystemResource("helpList.txt").readText()
+} catch (error: Exception) {
+    throw RuntimeException("Failed to load bot usage list. Is there something wrong with the file?$error")
+}
+
 @DiskordInternals
 suspend fun main() {
     bot(BOT_TOKEN) {
@@ -32,18 +38,18 @@ suspend fun main() {
                 val ejS = mutableListOf("-1")
                 val want = words.drop(1).joinToString(" ")
                 for(i in 0 until (emjlist.size - 1)){
-                    if (doublecut(emjlist[i].toString(), "name=", ",") == want){
+                    if (doubleCut(emjlist[i].toString(), "name=", ",") == want){
                         ejS[0] = i.toString()
                         break
                     }
                 }
                 val wVal = ejS[0].toInt()
                 if(wVal != -1){
-                    ejS.add(doublecut(emjlist[wVal].toString(), "isAnimated=", ")"))
-                    ejS.add(doublecut(emjlist[wVal].toString(), "name=", ","))
-                    ejS.add(doublecut(emjlist[wVal].toString(), "id=", ","))
+                    ejS.add(doubleCut(emjlist[wVal].toString(), "isAnimated=", ")"))
+                    ejS.add(doubleCut(emjlist[wVal].toString(), "name=", ","))
+                    ejS.add(doubleCut(emjlist[wVal].toString(), "id=", ","))
                     if(ejS[1].toBoolean()){
-                        reply("${doublecut(this.author.toString(),
+                        reply("${doubleCut(this.author.toString(),
                             "username=",
                             ", discriminator")}:  <a:${ejS[2]}:${ejS[3]}>")
                     }
@@ -83,9 +89,8 @@ suspend fun main() {
             }
             command("help") {
                 reply {
-                    title = "멀그봇 명령어 목록"
-                    description = "-=help: 명령어 목록을 표시합니다.\n-=req: 건의채널에서 건의를 보냅니다.\n-=domain: 서버 주소를 보여줍니다.\n" +
-                            "-=gifemoji <이모티콘 이름(: 없이)>: gif 이모티콘을 하나 전송합니다."
+                    title = "멀그봇입니다!"
+                    description = HELP_LIST
                 }
             }
         }
@@ -118,4 +123,4 @@ suspend fun main() {
 suspend fun isRole(guildClient: GuildClient, user: GuildMember, roleName: String) = guildClient.getRoles()
     .any { role -> user.roleIds.contains(role.id) && role.name == roleName }
 
-fun doublecut(toCut: String, dlA: String, dlB: String) = toCut.substringAfter(dlA).substringBefore(dlB)
+fun doubleCut(toCut: String, dlA: String, dlB: String) = toCut.substringAfter(dlA).substringBefore(dlB)
