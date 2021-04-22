@@ -7,3 +7,5 @@ Creating this for practicing kotlin and to use in my gaming discord server.
 Not created to be used public.
 
 *this repository can be switched to private at any time
+
+Not usint. Will be gone soon.
